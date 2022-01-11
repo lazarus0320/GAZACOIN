@@ -1,8 +1,8 @@
 import sys
 import time
 from PyQt5 import uic
-from PyQt5.QtCore import QThread, pyqtSignal
-from PyQt5.QtWidgets import QWidget
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
 from pyupbit import WebSocketManager
 import selectcoin
 
@@ -10,19 +10,21 @@ class OverViewWorker(QThread):
     dataSent = pyqtSignal(float, float, float, float, float, float, float, float, float, str)
     
     def __init__(self, ticker):
-        super().__init__()
+        super(OverViewWorker, self).__init__()
 
         self.alive = True
         self.ticker = ticker
     
     def run(self):
-        while self.alive:
-            new_ticker = selectcoin.mainticker
-            wm = WebSocketManager("ticker", [new_ticker])    # 24시간 기준 비트코인 가격정보 요청하는 웹소켓 정의
         
+        while self.alive:
+            wm = WebSocketManager("ticker", [selectcoin.mainticker])
+                # 24시간 기준 비트코인 가격정보 요청하는 웹소켓 정의
+            
             data = wm.get() # 웹 서버가 보내온 정보를 얻어옴
             #print(data)
             #print(data['trade_price'])
+            time.sleep(0.5)
             self.dataSent.emit(float(data['trade_price']),
                                float(data['signed_change_rate']),
                                float(data['acc_trade_volume_24h']),
@@ -33,10 +35,12 @@ class OverViewWorker(QThread):
                                float(data['prev_closing_price']),
                                float(data['opening_price']),
                                str(data['code']))
-        time.sleep(0.5)
-        wm.terminate()
+            wm.terminate()
+
     def close(self):
         self.alive = False
+        self.quit()
+        self.wait(3000)
 
 class OverviewWidget(QWidget):
     def __init__(self, parent=None):
@@ -50,7 +54,8 @@ class OverviewWidget(QWidget):
         
     def closeEvent(self, event):
         self.ovw.close()
-        
+    
+    @pyqtSlot(float, float, float, float, float, float, float, float, float, str)
     def fillData(self, trade_price, signed_change_rate, acc_trade_volume_24h, high_price, acc_trade_price_24h, low_price, signed_change_price, prev_closing_price, opening_price, code):
         ## trade_price:종가, signed_change_rate:전일종가대비 변화량, acc_trade_volume_24h : 누적거래량, high_price : 고가, 
         ## acc_trade_price_24h : 누적 거래금액, low_price : 저가, signed_change_price : 전일 종가 대비 변화 금액, prev_closing_price : 전일 종가

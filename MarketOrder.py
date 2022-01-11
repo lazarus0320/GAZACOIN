@@ -11,7 +11,7 @@ class MarketOrderWorker(QThread):
     data_seed = pyqtSignal(float)
     
     def __init__(self):     # ticker는 코인의 약어
-        super().__init__()
+        super(MarketOrderWorker, self).__init__()
         self.alive = True   # self.alive가 True인 동안에 스레드를 계속 돌림
     def run(self):
         while self.alive:
@@ -19,11 +19,13 @@ class MarketOrderWorker(QThread):
             self.data_seed.emit(data)
 
              # 업비트 호가창을 매수/매도 각각 15개씩만 얻어옴 (딕셔너리형태)
-            time.sleep(0.5)    # 초당 20번 수행
+            time.sleep(0.8)    # 초당 20번 수행
             #self.data_seed.emit(waitCurrPrice)    # 딕셔너리 형태 호가 정보를 슬롯으로 전달
     
     def close(self):
         self.alive = False
+        self.quit()
+        self.wait(3000)
 
 class MarketOrder(QDialog):
 
@@ -62,7 +64,7 @@ class MarketOrder(QDialog):
         self.slider.setTickPosition(QSlider.NoTicks)
         self.slider.valueChanged.connect(self.slide_changed)
   
-        self.mylabel = QLabel(f"주문가능(잔고) : {selectcoin.user_money:,} 원", self)
+        self.mylabel = QLabel(f"주문가능(잔고) : {selectcoin.user_money:,.2f} 원", self)
         self.mylabel.move(10, 30)
         self.mylabel.resize(250, 22)
 
@@ -99,20 +101,30 @@ class MarketOrder(QDialog):
         val = self.orderLine.value()
         self.slider.setValue(val)
         self.percent.setText(f"({val/selectcoin.user_money*100:.2f}%)")
+    
+    def closeEvent(self, event):    # 스레드 종료를 위해 QWidget의 메서드를 오버라이딩, 메인 위젯 종료시 closeEvent 메서드 실행
+        self.mw.close()
         
     def button_clicked(self):
         val1 = self.orderLine.value()   # 주문총액
-        val2 = val1 / self.cp   # 주문 수량
+        val2 = round(val1 / self.cp, 8)   # 주문 수량
         ticker = selectcoin.mainticker
        
         for selectcoin.coin in selectcoin.coin_dict:
             if selectcoin.coin['ticker'] == ticker:
-                selectcoin.coin['rfee'] += val1 * 0.05
+                #수량은 매수에서 손해봐야하므로 수수료로 *0.95
+                #총액은 내가 들인 금액이므로 
+                #fee = val1 * 0.05
+                #selectcoin.coin['rfee'] += (val1 * 0.05)
+                selectcoin.coin['buyprice'] = self.cp   # 현재가로 얼마에 샀는지 표시를 하기 위함
+                selectcoin.coin['buyamount'] = val2
+                #selectcoin.coin['totalbuy'] = val1*0.95
                 selectcoin.coin['rtotalbuy'] += val1
                 selectcoin.coin['rtotalamount'] += val2
                 selectcoin.coin['own'] = True
-                selectcoin.buychecker = True
-                selectcoin.user_money -= (selectcoin.coin['fee'] + val1)
+                selectcoin.coin['buychecker'] = True
+                selectcoin.accepted = True
+                selectcoin.user_money -= (val1*1.0005)
         self.accept()
         
         

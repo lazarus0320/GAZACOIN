@@ -1,4 +1,4 @@
-dict = {'a' : 300}
-print(dict)
-dict['a'] = 500
-print(dict)
+import pyupbit
+ticker = "KRW-BTC"
+wop = pyupbit.get_current_price(ticker)
+print(wop)

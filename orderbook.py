@@ -10,7 +10,7 @@ class OrderbookWorker(QThread):    ## 쓰레드 사용을 위한 클래스 선�
     data_seed = pyqtSignal(dict) # 딕셔너리 형태로 데이터를 전달할 시그널 정의
     
     def __init__(self, ticker):     # ticker는 코인의 약어
-        super().__init__()
+        super(OrderbookWorker, self).__init__()
         self.ticker = ticker
         self.alive = True   # self.alive가 True인 동안에 스레드를 계속 돌림
 
@@ -23,6 +23,8 @@ class OrderbookWorker(QThread):    ## 쓰레드 사용을 위한 클래스 선�
     
     def close(self):
         self.alive = False  # self.alive가 False전환되면 스레드 종료
+        self.quit()
+        self.wait(3000)
 
 class OrderbookWidget(QWidget): ## 위젯 받아와서 UI를 띄우는 클래스
     def __init__(self, parent=None):  # 새창으로 BTC에 대한 호가창 위젯을 띄움
@@ -127,6 +129,7 @@ class OrderbookWidget(QWidget): ## 위젯 받아와서 UI를 띄우는 클래스
     
     def closeEvent(self, event):    # 스레드 종료를 위해 QWidget의 메서드를 오버라이딩, 메인 위젯 종료시 closeEvent 메서드 실행
         self.ow.close()
+
         
         
 if __name__ == "__main__":
