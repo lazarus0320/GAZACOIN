@@ -90,7 +90,7 @@ class MainWindow(QMainWindow, form_class, Userdata):
             apikey = lines[0].strip()
             seckey = lines[1].strip()
             if apikey == "NONE" and seckey == "NONE":
-                self.textEdit.append("저장된 데이터가 없습니다. 새로운 데이터를 구성합니다.")
+                self.textEdit.append("\n저장된 데이터가 없습니다. 새로운 데이터를 구성합니다.")
                 
                 self.textEdit.append("시작하기 전에 도움말을 참고하세요.")
     
@@ -122,7 +122,7 @@ class MainWindow(QMainWindow, form_class, Userdata):
                     selectcoin.coin['buyamount'] = 0
                     curr = buycurr[coincount-1]
                     selectcoin.coin['buychecker'] = False
-                    self.textEdit.append(f"{ticker} 를 평단가 {buyprice:,.2f} 원에 {total_price:,.2f} 원만큼 매수했습니다. 코인 현재가 {curr} 하향구매")
+                    self.textEdit.append(f"\n{ticker} 를 평단가 {buyprice:,.2f} 원에 {total_price:,.2f} 원만큼 매수했습니다. 코인 현재가 {curr} 하향구매")
                     if len(buycurr) == (coincount):
                         break
                     coincount += 1  # 현재가와 같으므로 카운트 업
@@ -143,7 +143,7 @@ class MainWindow(QMainWindow, form_class, Userdata):
                     selectcoin.coin['buyamount'] = 0
                     curr = buycurr[coincount-1]
                     selectcoin.coin['buychecker'] = False
-                    self.textEdit.append(f"{ticker} 를 평단가 {buyprice:,.2f} 원에 {total_price:,.2f} 원만큼 매수했습니다. 코인 현재가 {curr}")
+                    self.textEdit.append(f"\n{ticker} 를 평단가 {buyprice:,.2f} 원에 {total_price:,.2f} 원만큼 매수했습니다. 코인 현재가 {curr}")
                     if len(buycurr) == (coincount):
                         break
                     coincount += 1  # 현재가와 같으므로 카운트 업
@@ -184,7 +184,7 @@ class MainWindow(QMainWindow, form_class, Userdata):
                     
                     curr = sellcurr[sellcounter-1]
                     selectcoin.coin['sellchecker'] = False
-                    self.textEdit.append(f"{ticker} 를 매도가 {sellprice:,.2f} 원에 {total_price:,.2f} 원만큼 매도했습니다. 코인 현재가 {curr} 하향매도")
+                    self.textEdit.append(f"\n{ticker} 를 매도가 {sellprice:,.2f} 원에 {total_price:,.2f} 원만큼 매도했습니다. 코인 현재가 {curr} 하향매도")
                     
                     if len(sellcurr) == (sellcounter):
                         break
@@ -215,7 +215,7 @@ class MainWindow(QMainWindow, form_class, Userdata):
                     
                     selectcoin.coin['sellchecker'] = False
                     curr = sellcurr[sellcounter-1]
-                    self.textEdit.append(f"{ticker} 를 매도가 {sellprice:,.2f} 원에 {total_price:,.2f} 원만큼 매도했습니다. 코인 현재가 {curr}")
+                    self.textEdit.append(f"\n{ticker} 를 매도가 {sellprice:,.2f} 원에 {total_price:,.2f} 원만큼 매도했습니다. 코인 현재가 {curr}")
                     
                     if len(sellcurr) == (sellcounter):
                         break
@@ -229,14 +229,14 @@ class MainWindow(QMainWindow, form_class, Userdata):
         limitorder = LimitOrder()
         limitorder.exec_()      # 다른 모듈의 다이얼로그를 실행시킨다.
         if selectcoin.accepted == True:
-            self.textEdit.append("매수 주문이 완료되었습니다.")
+            self.textEdit.append("\n매수 주문이 완료되었습니다.")
             selectcoin.accepted = False
     
     def click_LimitSell_Btn(self):  # 시장가 매도
         limitsell = LimitSell()
         limitsell.exec_()
         if selectcoin.accepted == True:
-            self.textEdit.append("매수 주문이 완료되었습니다.")
+            self.textEdit.append("\n매수 주문이 완료되었습니다.")
             selectcoin.accepted = False
     
     def click_MarketOrder_Btn(self):    # 시장가 매수
@@ -250,7 +250,7 @@ class MainWindow(QMainWindow, form_class, Userdata):
                     buyamount = selectcoin.coin['buyamount']
                     multifly = buyprice*buyamount
                     break
-            self.textEdit.append(f"{ticker} 를 {buyprice:,.2f} 원에 {buyamount:,.8f} 개 매수했습니다. 매수액 {multifly:,.2f} (수수료 0.05%차감)")
+            self.textEdit.append(f"\n{ticker} 를 {buyprice:,.2f} 원에 {buyamount:,.8f} 개 매수했습니다. 매수액 {multifly:,.2f} (수수료 0.05%차감)")
             selectcoin.coin['buyprice'] = 0
             selectcoin.coin['buyamount'] = 0
             selectcoin.accepted = False
@@ -267,13 +267,14 @@ class MainWindow(QMainWindow, form_class, Userdata):
                     buyprice = selectcoin.coin['buyprice']
                     multifly = buyprice*buyamount
                     break
-            self.textEdit.append(f"{ticker} 를 {buyprice:,.2f} 원에 {buyamount:,.8f} 개 매도했습니다. 매도액 {multifly:,.2f} (수수료 0.05%차감)")
+            self.textEdit.append(f"\n{ticker} 를 {buyprice:,.2f} 원에 {buyamount:,.8f} 개 매도했습니다. 매도액 {multifly:,.2f} (수수료 0.05%차감)")
             selectcoin.coin['buyamount'] = 0
             selectcoin.coin['buyprice'] = 0
             selectcoin.accepted = False
             
     def  click_myCoin_Btn(self):        ### 거래내역조회
         mycoincount = 0
+        self.textEdit.append("\n거래내역 조회")
         self.textEdit.append(f'현재 잔고 : {selectcoin.user_money:,.2f} 원')
         for selectcoin.coin in selectcoin.coin_dict:      # 코인의 각 항목에 접근해서 구매한 코인의 own을 True, buyprice라는 새 항목을 만들어 매수가격 추가
             if selectcoin.coin['own'] == True:
@@ -286,10 +287,11 @@ class MainWindow(QMainWindow, form_class, Userdata):
                 self.textEdit.append(f"{mycoincount}.  코인이름 : {ticker}  평단 : {buyprice:,.2f}  수량 : {buyamount:,.2f}  총 매수액 : {totalbuyprice:,.2f}")
                 
         if mycoincount == 0:
-            self.textEdit.append("보유한 코인이 없습니다.")
+            self.textEdit.append("\n보유한 코인이 없습니다.")
 
     def click_nonContract_Btn(self):        ### 미체결 조회
         coint = 0
+        self.textEdit.append("\n미체결 조회")
         for selectcoin.coin in selectcoin.coin_dict:
             if selectcoin.coin['wait'] == True:
                 
@@ -313,7 +315,7 @@ class MainWindow(QMainWindow, form_class, Userdata):
         if "KRW-" in self.lineEdit.text():
             for ticker in tickers:
                 if self.lineEdit.text() == ticker:
-                    self.textEdit.append(f'{ticker}정보를 불러옵니다.')             
+                    self.textEdit.append(f'{ticker} 정보를 불러왔습니다.')             
                     selectcoin.mainticker = ticker
                     break
                 
@@ -335,10 +337,19 @@ class MainWindow(QMainWindow, form_class, Userdata):
         self.lineEdit.clear()
         
     def clickBtn_help(self):    ## 도움말
-        self.textEdit.append("가즈아 온라인 모의투자는 업비트 가상화폐 거래소의 실시간 데이터를 바탕으로 모의 투자를 체험하는 게임입니다. 매매 시작을 누르면 거래를 시작할 수 있습니다. 매매 중단 버튼을 누르면 데이터가 저장됩니다. 게임을 종료하기 전에 반드시 매매 중단 버튼을 눌러주세요.")
-        self.textEdit.append("모든 매수와 매도는 거래 수수료가 0.05%가 적용됩니다. 주문 금액의 0.05%를 제한 금액이 실제 주문 가격으로 책정됩니다.")
-        self.textEdit.append("버그나 불만 사항에 대해서는 010-8248-5327로 문의 바랍니다.")
-        
+        self.textEdit.append("\n\n가즈아 온라인 모의투자는 업비트 가상화폐 거래소의 실시간 데이터를 바탕으로 하는 모의 투자 게임입니다.\n거래는 현재 업비트 원화시장에 등록된 코인에 한에서만 가능합니다.")
+        self.textEdit.append("대부분의 기능은 업비트를 모방에서 만들었으나 기술적인 이유로 구현되지 못하거나 다른 부분이 있을 수 있습니다. 버그나 불만 사항에 대해서는 010-8248-5327로 문의 바랍니다.")
+        self.textEdit.append("개발자 후원하기 : 112-2148-6918-01 부산은행")
+        self.textEdit.append("\n코인 거래시 주의사항")
+        self.textEdit.append("모든 코인의 최소 주문금액은 5000원입니다. 코인마다 매수가격의 단위가 다르게 설정되어 있습니다. 자세한 것은 매수창에서 확인 가능합니다. 추후 업비트의 기준에 따라 변경될 예정입니다.")
+        self.textEdit.append("미체결 상태로 매수/매도 대기중인 코인에 대해서는 주문을 취소하거나 거래가 이루어지기 전까지는 추가 주문이 불가능합니다.")
+        self.textEdit.append("현재 조회되는 코인에 대해서만 매수/매도 주문이 가능합니다. 먼저 거래할 코인의 정보를 조회하고, 매수/매도 주문을 진행하면 되겠습니다.")
+        self.textEdit.append("모든 매수와 매도는 업비트의 정책에 따라 0.05%의 수수료가 부과됩니다. 매수 금액의 0.05%가 잔고에서 더 빠져나가고, 매도 금액의 0.05%가 제외된 값이 잔고에 들어옵니다.")
+        self.textEdit.append("따라서 5000원 이상으로 주문을 했더라도 수수료를 포함한 금액을 지불할 수 없다면 거래가 제한됩니다.")
+        self.textEdit.append("\n명령어 리스트")
+        self.textEdit.append("기술 구현 능력 미숙으로 몇몇 기능들은 명령어로 작동합니다.")
+        self.textEdit.append("코인 정보 조회 방법 : KRW-코인 티커명  ex) 비트코인 조회 : KRW-BTC. 리플코인 조회 : KRW-XRP"  )
+        self.textEdit.append("미체결 주문 취소 방법 : cancel-KRW-코인 티커명  ex) 샌드박스 코인 미체결 매도주문 취소하기 : cancel-KRW-SAND")
 
                 
     def closeEvent(self, event):

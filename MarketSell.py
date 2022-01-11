@@ -18,7 +18,7 @@ class MarketSellWorker(QThread):
             self.data_seed.emit(data)
 
              # 업비트 호가창을 매수/매도 각각 15개씩만 얻어옴 (딕셔너리형태)
-            time.sleep(0.5)    # 초당 20번 수행
+            time.sleep(0.2)    # 초당 20번 수행
             #self.data_seed.emit(waitCurrPrice)    # 딕셔너리 형태 호가 정보를 슬롯으로 전달
     
     def close(self):

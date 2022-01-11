@@ -24,23 +24,21 @@ class OverViewWorker(QThread):
             data = wm.get() # 웹 서버가 보내온 정보를 얻어옴
             #print(data)
             #print(data['trade_price'])
-            time.sleep(0.5)
-            self.dataSent.emit(float(data['trade_price']),
-                               float(data['signed_change_rate']),
-                               float(data['acc_trade_volume_24h']),
-                               float(data['high_price']),
-                               float(data['acc_trade_price_24h']),
-                               float(data['low_price']),
-                               float(data['signed_change_price']),
-                               float(data['prev_closing_price']),
-                               float(data['opening_price']),
+            time.sleep(0.2)
+            self.dataSent.emit(float(str(data['trade_price'])),
+                               float(str(data['signed_change_rate'])),
+                               float(str(data['acc_trade_volume_24h'])),
+                               float(str(data['high_price'])),
+                               float(str(data['acc_trade_price_24h'])),
+                               float(str(data['low_price'])),
+                               float(str(data['signed_change_price'])),
+                               float(str(data['prev_closing_price'])),
+                               float(str(data['opening_price'])),
                                str(data['code']))
             wm.terminate()
 
     def close(self):
         self.alive = False
-        self.quit()
-        self.wait(3000)
 
 class OverviewWidget(QWidget):
     def __init__(self, parent=None):

@@ -99,14 +99,14 @@
         <item>
          <widget class="QPushButton" name="myCoin_Btn">
           <property name="text">
-           <string>거래 내역</string>
+           <string>투자 내역</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QPushButton" name="nonContract_Btn">
           <property name="text">
-           <string>미체결</string>
+           <string>미체결 주문</string>
           </property>
          </widget>
         </item>
