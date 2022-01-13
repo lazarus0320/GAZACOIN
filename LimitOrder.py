@@ -20,7 +20,10 @@ class LimitOrder(QDialog):     ## 지정가 매수 다이얼로그
         self.setWindowTitle('지정가 매수')
         self.setWindowIcon(QIcon("resource/doge.png"))
         self.ticker = selectcoin.mainticker
-        self.cp = pyupbit.get_current_price(self.ticker)
+        try:
+            self.cp = pyupbit.get_current_price(self.ticker)
+        except:
+            time.sleep(0.5)
         
         
         
@@ -38,6 +41,12 @@ class LimitOrder(QDialog):     ## 지정가 매수 다이얼로그
         
         self.buyprice_line = QLineEdit(self)
         self.buyprice_line.setAlignment(Qt.AlignRight)
+        
+        try:
+            self.cp = pyupbit.get_current_price(self.ticker)
+        except:
+            time.sleep(0.5)
+            
         self.buyprice_line.setText(str(self.cp))
         self.buyprice_line.move(140, 55)
         self.buyprice_line.resize(150, 25)
@@ -182,19 +191,28 @@ class LimitOrder(QDialog):     ## 지정가 매수 다이얼로그
                     if result2 == QMessageBox.Ok:
                         self.close
                         jumper = True
+            
+            elif selectcoin.user_money <= totalorder:
+                msg3 = QMessageBox()     
+                msg3.setWindowTitle('WARNING')
+                msg3.setText("잔액이 부족합니다.(매수 주문시 수수료도 함께 계산됩니다.)")
+                result3 = msg3.exec()
+                if result3 == QMessageBox.Ok:
+                    self.close
+                    jumper = True
       
             else : 
                 if int(float(self.order_totalbuy_line.text())) < 1000:
                     msg2 = QMessageBox()     
                     msg2.setWindowTitle('WARNING')
-                    msg2.setText("해당 코인의 경우 최소 5000원 이상 주문만 가능합니다.")
+                    msg2.setText("해당 코인의 경우 최소 1000원 이상 주문만 가능합니다.")
                     result2 = msg2.exec()
                     if result2 == QMessageBox.Ok:
                         self.close
                         jumper = True
 
             
-            if jumper != True:    
+            if jumper == False:    
                 for selectcoin.coin in selectcoin.coin_dict: 
                     # 코인의 각 항목에 접근해서 구매한 코인의 own을 True, buyprice라는 새 항목을 만들어 매수가격 추가
                     if selectcoin.mainticker == selectcoin.coin['ticker']:
@@ -207,6 +225,7 @@ class LimitOrder(QDialog):     ## 지정가 매수 다이얼로그
                         selectcoin.coin['buyamount'] = amount
                         selectcoin.coin['totalamount'] = amount     # 매수 취소시 증가한만큼 빼야함
                         selectcoin.coin['buychecker'] = True
+                        selectcoin.accepted = True
             jumper = False
             # buyprice : 매수가격    amount: 매수수량
         self.accept()    
@@ -233,11 +252,3 @@ class LimitOrder(QDialog):     ## 지정가 매수 다이얼로그
         elif 2000000<= self.cp:
             return 1000
         
-    def closeEvent(self, event):
-        quit_msg = "해당 코인의 경우 최소 5000원 이상 주문만 가능합니다."
-        reply = QMessageBox.question(self, 'Message', quit_msg, QMessageBox.Yes)
-                                                    
-        if reply == QMessageBox.Yes:
-                    
-            self.close()
-            event.accept()

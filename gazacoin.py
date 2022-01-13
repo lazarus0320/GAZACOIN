@@ -11,7 +11,6 @@ from MarketOrder import *
 from MarketSell import *
 from LimitSell import LimitSell
 from overview import *
-import threading
 #import pygame
 
 
@@ -172,7 +171,7 @@ class MainWindow(QMainWindow, form_class, Userdata):
                     selectcoin.coin['rtotalbuy'] -= (averageprice*amount)
                     selectcoin.coin['rtotalamount'] -= amount
                     
-                    if selectcoin.coin['rtotalbuy'] <= 0:
+                    if selectcoin.coin['rtotalbuy'] < 1:
                         selectcoin.coin['own'] = False
                         selectcoin.coin['rtotalamount'] = 0
                         selectcoin.coin['rtotalbuy'] = 0
@@ -203,7 +202,7 @@ class MainWindow(QMainWindow, form_class, Userdata):
                     selectcoin.coin['rtotalbuy'] -= (averageprice*amount)
                     selectcoin.coin['rtotalamount'] -= amount
                     
-                    if selectcoin.coin['rtotalbuy'] <= 0:
+                    if selectcoin.coin['rtotalbuy'] < 1:
                         selectcoin.coin['own'] = False
                         selectcoin.coin['rtotalamount'] = 0
                         selectcoin.coin['rtotalbuy'] = 0
@@ -226,51 +225,71 @@ class MainWindow(QMainWindow, form_class, Userdata):
                         break
     
     def click_LimitOrder_Btn(self): # 지정가 매수 주문
-        limitorder = LimitOrder()
-        limitorder.exec_()      # 다른 모듈의 다이얼로그를 실행시킨다.
-        if selectcoin.accepted == True:
-            self.textEdit.append("\n매수 주문이 완료되었습니다.")
-            selectcoin.accepted = False
+        for selectcoin.coin in selectcoin.coin_dict:
+            if selectcoin.coin == selectcoin.mainticker:
+                if selectcoin.coin['wait'] == True:
+                    self.textEdit.append("\n해당 코인의 미체결 주문이 있습니다.")
+                else:
+                    limitorder = LimitOrder()
+                    limitorder.exec_()      # 다른 모듈의 다이얼로그를 실행시킨다.
+                    if selectcoin.accepted == True:
+                        self.textEdit.append("\n매수 주문이 완료되었습니다.")
+                        selectcoin.accepted = False
     
-    def click_LimitSell_Btn(self):  # 시장가 매도
-        limitsell = LimitSell()
-        limitsell.exec_()
-        if selectcoin.accepted == True:
-            self.textEdit.append("\n매수 주문이 완료되었습니다.")
-            selectcoin.accepted = False
+    def click_LimitSell_Btn(self):  # 지정가 매도
+        for selectcoin.coin in selectcoin.coin_dict:
+            if selectcoin.coin == selectcoin.mainticker:
+                if selectcoin.coin['wait'] == True:
+                    self.textEdit.append("\n해당 코인의 미체결 주문이 있습니다.")
+                else:
+                    limitsell = LimitSell()
+                    limitsell.exec_()
+                    if selectcoin.accepted == True:
+                        self.textEdit.append("\n매도 주문이 완료되었습니다.")
+                        selectcoin.accepted = False
     
     def click_MarketOrder_Btn(self):    # 시장가 매수
-        marketorder = MarketOrder()
-        marketorder.exec_()
-        if selectcoin.accepted == True:
-            ticker = selectcoin.mainticker
-            for selectcoin.coin in selectcoin.coin_dict:
-                if selectcoin.coin['ticker'] == ticker:
-                    buyprice = selectcoin.coin['buyprice']
-                    buyamount = selectcoin.coin['buyamount']
-                    multifly = buyprice*buyamount
-                    break
-            self.textEdit.append(f"\n{ticker} 를 {buyprice:,.2f} 원에 {buyamount:,.8f} 개 매수했습니다. 매수액 {multifly:,.2f} (수수료 0.05%차감)")
-            selectcoin.coin['buyprice'] = 0
-            selectcoin.coin['buyamount'] = 0
-            selectcoin.accepted = False
+        for selectcoin.coin in selectcoin.coin_dict:
+            if selectcoin.coin == selectcoin.mainticker:
+                if selectcoin.coin['wait'] == True:
+                    self.textEdit.append("\n해당 코인의 미체결 주문이 있습니다.")
+                else:
+                    marketorder = MarketOrder()
+                    marketorder.exec_()
+                    if selectcoin.accepted == True:
+                        ticker = selectcoin.mainticker
+                        for selectcoin.coin in selectcoin.coin_dict:
+                            if selectcoin.coin['ticker'] == ticker:
+                                buyprice = selectcoin.coin['buyprice']
+                                buyamount = selectcoin.coin['buyamount']
+                                multifly = buyprice*buyamount
+                                break
+                        self.textEdit.append(f"\n{ticker} 를 {buyprice:,.2f} 원에 {buyamount:,.8f} 개 매수했습니다. 매수액 {multifly:,.2f} (수수료 0.05%차감)")
+                        selectcoin.coin['buyprice'] = 0
+                        selectcoin.coin['buyamount'] = 0
+                        selectcoin.accepted = False
         
     
-    def click_MarketSell_Btn(self):     # 지정가 매도
-        marketsell = MarketSell()
-        marketsell.exec_()
-        if selectcoin.accepted == True:
-            ticker = selectcoin.mainticker
-            for selectcoin.coin in selectcoin.coin_dict:
-                if selectcoin.coin['ticker'] == ticker:
-                    buyamount = selectcoin.coin['buyamount']
-                    buyprice = selectcoin.coin['buyprice']
-                    multifly = buyprice*buyamount
-                    break
-            self.textEdit.append(f"\n{ticker} 를 {buyprice:,.2f} 원에 {buyamount:,.8f} 개 매도했습니다. 매도액 {multifly:,.2f} (수수료 0.05%차감)")
-            selectcoin.coin['buyamount'] = 0
-            selectcoin.coin['buyprice'] = 0
-            selectcoin.accepted = False
+    def click_MarketSell_Btn(self):     # 시장가 매도
+        for selectcoin.coin in selectcoin.coin_dict:
+            if selectcoin.coin == selectcoin.mainticker:
+                if selectcoin.coin['wait'] == True:
+                    self.textEdit.append("\n해당 코인의 미체결 주문이 있습니다.")
+                else:
+                    marketsell = MarketSell()
+                    marketsell.exec_()
+                    if selectcoin.accepted == True:
+                        ticker = selectcoin.mainticker
+                        for selectcoin.coin in selectcoin.coin_dict:
+                            if selectcoin.coin['ticker'] == ticker:
+                                buyamount = selectcoin.coin['buyamount']
+                                buyprice = selectcoin.coin['buyprice']
+                                multifly = buyprice*buyamount
+                                break
+                        self.textEdit.append(f"\n{ticker} 를 {buyprice:,.2f} 원에 {buyamount:,.8f} 개 매도했습니다. 매도액 {multifly:,.2f} (수수료 0.05%차감)")
+                        selectcoin.coin['buyamount'] = 0
+                        selectcoin.coin['buyprice'] = 0
+                        selectcoin.accepted = False
             
     def  click_myCoin_Btn(self):        ### 거래내역조회
         mycoincount = 0
@@ -284,7 +303,7 @@ class MainWindow(QMainWindow, form_class, Userdata):
                 buyamount = selectcoin.coin['rtotalamount']
                 #fee = selectcoin.coin['rfee']
                 totalbuyprice = selectcoin.coin['rtotalbuy']
-                self.textEdit.append(f"{mycoincount}.  코인이름 : {ticker}  평단 : {buyprice:,.2f}  수량 : {buyamount:,.2f}  총 매수액 : {totalbuyprice:,.2f}")
+                self.textEdit.append(f"{mycoincount}.  코인이름 : {ticker}  평단 : {buyprice:,.2f}  수량 : {buyamount:,.8f}  총 매수액 : {totalbuyprice:,.2f}")
                 
         if mycoincount == 0:
             self.textEdit.append("\n보유한 코인이 없습니다.")
@@ -301,9 +320,9 @@ class MainWindow(QMainWindow, form_class, Userdata):
                 buyamount = selectcoin.coin['buyamount']
                 #fee = selectcoin.coin['fee']
                 if selectcoin.coin['buychecker'] == True:
-                    self.textEdit.append(f"{coint}. {ticker} 매수 대기  거래수량 : {buyamount:,.2f}  거래단가 : {buyprice:,.2f}  거래금액 : {buyamount*buyprice:,.2f}")
+                    self.textEdit.append(f"{coint}. {ticker} 매수 대기  거래수량 : {buyamount:,.8f}  거래단가 : {buyprice:,.2f}  거래금액 : {buyamount*buyprice:,.2f}")
                 else:
-                    self.textEdit.append(f"{coint}. {ticker} 매도 대기  거래수량 : {buyamount:,.2f}  거래단가 : {buyprice:,.2f}  거래금액 : {buyamount*buyprice:,.2f}")
+                    self.textEdit.append(f"{coint}. {ticker} 매도 대기  거래수량 : {buyamount:,.8f}  거래단가 : {buyprice:,.2f}  거래금액 : {buyamount*buyprice:,.2f}")
         self.textEdit.append("미체결 코인의 번호를 입력하면 거래 취소가 가능합니다.")        
         #self.nonContractcount = cointcounter
         if coint == 0:

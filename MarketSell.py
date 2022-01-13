@@ -14,12 +14,15 @@ class MarketSellWorker(QThread):
         self.alive = True   # self.alive가 True인 동안에 스레드를 계속 돌림
     def run(self):
         while self.alive:
-            data = pyupbit.get_current_price(selectcoin.mainticker)
-            self.data_seed.emit(data)
+            try:
+                data = pyupbit.get_current_price(selectcoin.mainticker)
+                self.data_seed.emit(data)
 
              # 업비트 호가창을 매수/매도 각각 15개씩만 얻어옴 (딕셔너리형태)
-            time.sleep(0.2)    # 초당 20번 수행
+                time.sleep(0.5)    # 초당 20번 수행
             #self.data_seed.emit(waitCurrPrice)    # 딕셔너리 형태 호가 정보를 슬롯으로 전달
+            except:
+                time.sleep(0.5)
     
     def close(self):
         self.alive = False
@@ -37,11 +40,15 @@ class MarketSell(QDialog):
         self.ms.start()
 
     def setupUI(self):
-        self.setGeometry(600, 400, 300, 160)
+        self.setGeometry(600, 400, 300, 200)
         self.setWindowTitle('시장가 매도')
         self.setWindowIcon(QIcon("resource/doge.png"))
         self.ticker = selectcoin.mainticker
-        self.cp = pyupbit.get_current_price(self.ticker)
+        try:
+            self.cp = pyupbit.get_current_price(self.ticker)
+        except:
+            time.sleep(0.5)
+            
         self.sel_amount = 0
         '''
         
@@ -89,8 +96,14 @@ class MarketSell(QDialog):
         self.amountLabel_val.move(50, 90)
         self.amountLabel_val.resize(100, 22)
         
+        if selectcoin.mainticker == "KRW-XLM" or selectcoin.mainticker == "KRW-ETH" or selectcoin.mainticker == "KRW-BTC" or selectcoin.mainticker == "KRW-ADA" or selectcoin.mainticker == "KRW-EOS" or selectcoin.mainticker == "KRW-SNT" or selectcoin.mainticker == "KRW-BCH" or selectcoin.mainticker == "KRW-XEM": 
+            self.fee_label = QLabel(f"최소 주문금액 : 5000KRW   수수료 : 0.05%", self)
+        else: 
+            self.fee_label = QLabel(f"최소 주문금액 : 1000KRW   수수료 : 0.05%", self)
+        self.fee_label.move(10, 135)
+        
         self.button = QPushButton(self)
-        self.button.move(10, 120)
+        self.button.move(10, 160)
         self.button.resize(280, 30)
         self.button.setText('매도')
         self.button.clicked.connect(self.button_clicked)
@@ -124,9 +137,9 @@ class MarketSell(QDialog):
 
         
     def button_clicked(self):
-
         ticker = selectcoin.mainticker
-       
+        
+   
         for selectcoin.coin in selectcoin.coin_dict:
             if selectcoin.coin['ticker'] == ticker:
                 averageprice = selectcoin.coin['rtotalbuy'] / selectcoin.coin['rtotalamount'] #당시주가, 평단가
@@ -139,7 +152,7 @@ class MarketSell(QDialog):
                 selectcoin.coin['rtotalamount'] -= self.sel_amount
                 selectcoin.coin['rtotalbuy'] -= (averageprice*self.sel_amount)
                 
-                if selectcoin.coin['rtotalbuy'] <= 0:
+                if selectcoin.coin['rtotalbuy'] < 1:
                     selectcoin.coin['own'] = False
                     selectcoin.coin['rtotalamount'] = 0
                     selectcoin.coin['rtotalbuy'] = 0

@@ -20,11 +20,11 @@ class OverViewWorker(QThread):
         while self.alive:
             wm = WebSocketManager("ticker", [selectcoin.mainticker])
                 # 24시간 기준 비트코인 가격정보 요청하는 웹소켓 정의
-            
+
             data = wm.get() # 웹 서버가 보내온 정보를 얻어옴
             #print(data)
             #print(data['trade_price'])
-            time.sleep(0.2)
+            time.sleep(0.5)
             self.dataSent.emit(float(str(data['trade_price'])),
                                float(str(data['signed_change_rate'])),
                                float(str(data['acc_trade_volume_24h'])),
@@ -69,8 +69,27 @@ class OverviewWidget(QWidget):
         
         self.label_14.setText(f"{prev_closing_price:,}"+"   "+f"{signed_change_price:,}") if trade_price < prev_closing_price else self.label_14.setText(f"{prev_closing_price:,}"+"   "+f"+{signed_change_price:,}")
         self.label_15.setText(code)
-        
+        self.change_rank()
         self.__updateStyle()
+    
+    def change_rank(self):
+        if selectcoin.user_money < 1000000:
+            self.rank_label.setText("거지")
+        elif 1000000 <= selectcoin.user_money < 3000000:
+            self.rank_label.setText("브론즈3")
+        elif 3000000 <= selectcoin.user_money < 6000000:
+            self.rank_label.setText("브론즈2")
+        elif 6000000 <= selectcoin.user_money < 10000000:
+            self.rank_label.setText("브론즈1")
+        elif 6000000 <= selectcoin.user_money < 10000000:
+            self.rank_label.setText("브론즈1")
+        elif 10000000 <= selectcoin.user_money < 15000000:
+            self.rank_label.setText("실버3")
+        elif 15000000 <= selectcoin.user_money < 20000000:
+            self.rank_label.setText("실버2")
+        elif 20000000 <= selectcoin.user_money < 30000000:
+            self.rank_label.setText("실버1")    
+        
     
     def __updateStyle(self):
         if '-' in self.label_2.text():

@@ -21,7 +21,10 @@ class PriceWorker(QThread):
     def run(self):
         while self.alive:
             self.ticker = selectcoin.mainticker
-            data  = pyupbit.get_current_price(self.ticker)
+            try:
+                data  = pyupbit.get_current_price(self.ticker)
+            except:
+                time.sleep(0.5)
             time.sleep(1)
             self.dataSent.emit(data)
 
