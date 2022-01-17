@@ -225,34 +225,41 @@ class MainWindow(QMainWindow, form_class, Userdata):
                         break
     
     def click_LimitOrder_Btn(self): # 지정가 매수 주문
+        
         for selectcoin.coin in selectcoin.coin_dict:
-            if selectcoin.coin == selectcoin.mainticker:
+            if selectcoin.coin['ticker'] == selectcoin.mainticker:
                 if selectcoin.coin['wait'] == True:
                     self.textEdit.append("\n해당 코인의 미체결 주문이 있습니다.")
+                    break
                 else:
+                    print('wow')
                     limitorder = LimitOrder()
                     limitorder.exec_()      # 다른 모듈의 다이얼로그를 실행시킨다.
                     if selectcoin.accepted == True:
                         self.textEdit.append("\n매수 주문이 완료되었습니다.")
                         selectcoin.accepted = False
+                    break
     
     def click_LimitSell_Btn(self):  # 지정가 매도
         for selectcoin.coin in selectcoin.coin_dict:
-            if selectcoin.coin == selectcoin.mainticker:
+            if selectcoin.coin['ticker'] == selectcoin.mainticker:
                 if selectcoin.coin['wait'] == True:
                     self.textEdit.append("\n해당 코인의 미체결 주문이 있습니다.")
+                    break
                 else:
                     limitsell = LimitSell()
                     limitsell.exec_()
                     if selectcoin.accepted == True:
                         self.textEdit.append("\n매도 주문이 완료되었습니다.")
                         selectcoin.accepted = False
+                    break
     
     def click_MarketOrder_Btn(self):    # 시장가 매수
         for selectcoin.coin in selectcoin.coin_dict:
-            if selectcoin.coin == selectcoin.mainticker:
+            if selectcoin.coin['ticker'] == selectcoin.mainticker:
                 if selectcoin.coin['wait'] == True:
                     self.textEdit.append("\n해당 코인의 미체결 주문이 있습니다.")
+                    
                 else:
                     marketorder = MarketOrder()
                     marketorder.exec_()
@@ -272,7 +279,7 @@ class MainWindow(QMainWindow, form_class, Userdata):
     
     def click_MarketSell_Btn(self):     # 시장가 매도
         for selectcoin.coin in selectcoin.coin_dict:
-            if selectcoin.coin == selectcoin.mainticker:
+            if selectcoin.coin['ticker'] == selectcoin.mainticker:
                 if selectcoin.coin['wait'] == True:
                     self.textEdit.append("\n해당 코인의 미체결 주문이 있습니다.")
                 else:
