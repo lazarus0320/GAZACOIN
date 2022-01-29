@@ -280,8 +280,37 @@ class MainWindow(QMainWindow, form_class, Userdata):
                                 buyamount = selectcoin.coin['buyamount']
                                 multifly = buyprice*buyamount
                                 break
+                            
                         self.textEdit.append(f"\n{ticker} 를 {buyprice:,.2f} 원에 {buyamount:,.8f} 개 매수했습니다. 매수액 {multifly:,.2f} (수수료 0.05%차감)")
                         buySound.play()
+                        
+                        
+                        
+                        averagePrice = round(selectcoin.coin['rtotalbuy'] / selectcoin.coin['rtotalamount'], 2)
+                        totalbuyAmount = selectcoin.coin['rtotalamount']
+                        totalbuyPrice = selectcoin.coin['rtotalbuy']
+                        # 이 코인을 구매한 적이 없다면 id값을 부여하고, 행을 새로 추가.
+                        # 구매한 적이 있다면 해당 코인에 부여했던 id값이 위치한 행에다 값을 업데이트.
+                        # 전량 매도가 된 경우 id값 -1로 초기화, 표에서 제거.
+                        
+                        if selectcoin.coin['id'] == -1:
+                            # 표에 있는 값들을 확인하고 맨 마지막에 해당 id를 부여
+                            id = self.buyTable.rowCount()
+                            row = self.buyTable.rowCount()
+                            self.buyTable.insertRow(row)
+                            selectcoin.coin['id'] = id
+                            self.buyTable.setItem(id, 0, QTableWidgetItem(ticker))
+                            self.buyTable.setItem(id, 1, QTableWidgetItem(f'{averagePrice:,}'))
+                            self.buyTable.setItem(id, 2, QTableWidgetItem(str(totalbuyAmount)))
+                            self.buyTable.setItem(id, 3, QTableWidgetItem(f'{totalbuyPrice:,}'))
+                        
+                        else:
+                            id = selectcoin.coin['id']
+                            self.buyTable.setItem(id, 0, QTableWidgetItem(ticker))
+                            self.buyTable.setItem(id, 1, QTableWidgetItem(f'{averagePrice:,}'))
+                            self.buyTable.setItem(id, 2, QTableWidgetItem(str(totalbuyAmount)))
+                            self.buyTable.setItem(id, 3, QTableWidgetItem(f'{totalbuyPrice:,}'))
+                        
                         selectcoin.coin['buyprice'] = 0
                         selectcoin.coin['buyamount'] = 0
                         selectcoin.accepted = False
@@ -305,6 +334,25 @@ class MainWindow(QMainWindow, form_class, Userdata):
                                 break
                         self.textEdit.append(f"\n{ticker} 를 {buyprice:,.2f} 원에 {buyamount:,.8f} 개 매도했습니다. 매도액 {multifly:,.2f} (수수료 0.05%차감)")
                         sellSound.play()
+                        
+                        totalbuyPrice = selectcoin.coin['rtotalbuy']
+                        
+                        id = selectcoin.coin['id']
+                        if totalbuyPrice < 1:
+                            selectcoin.coin['id'] = -1
+                            self.buyTable.removeRow(id)
+                            #5개의 코인을 샀다고 가정했을때 3번째 코인의 행을 지워버리면 4번째, 5번째 행의 코인들은 3번째, 4번째 행으로 옮겨져야하고 id값도 그에 맞게 바뀌어야 한다.
+                            #수익률 때문에 나중에 따로 모듈 만들어서 실시간으로 표에 정보를 표시하게 하고, 여기서는 행과 id값만 지정해주는 방법으로 업데이트 예정.
+                        
+                        else:
+                            totalbuyPrice = selectcoin.coin['rtotalbuy']
+                            averagePrice = round(selectcoin.coin['rtotalbuy'] / selectcoin.coin['rtotalamount'], 2)    # ZeroDivisionError: division by zero
+                            totalbuyAmount = selectcoin.coin['rtotalamount']
+                            self.buyTable.setItem(id, 0, QTableWidgetItem(ticker))
+                            self.buyTable.setItem(id, 1, QTableWidgetItem(f'{averagePrice:,}'))
+                            self.buyTable.setItem(id, 2, QTableWidgetItem(str(totalbuyAmount)))
+                            self.buyTable.setItem(id, 3, QTableWidgetItem(f'{totalbuyPrice:,}'))
+                        
                         selectcoin.coin['buyamount'] = 0
                         selectcoin.coin['buyprice'] = 0
                         selectcoin.accepted = False
