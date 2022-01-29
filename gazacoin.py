@@ -11,12 +11,13 @@ from MarketOrder import *
 from MarketSell import *
 from LimitSell import LimitSell
 from overview import *
-#import pygame
-
+import pygame
+pygame.init()
 
 
 tickers = ['KRW-BTC', 'KRW-ETH', 'KRW-NEO', 'KRW-MTL', 'KRW-LTC', 'KRW-XRP', 'KRW-ETC', 'KRW-OMG', 'KRW-SNT', 'KRW-WAVES', 'KRW-XEM', 'KRW-QTUM', 'KRW-LSK', 'KRW-STEEM', 'KRW-XLM', 'KRW-ARDR', 'KRW-ARK', 'KRW-STORJ', 'KRW-GRS', 'KRW-REP', 'KRW-ADA', 'KRW-SBD', 'KRW-POWR', 'KRW-BTG', 'KRW-ICX', 'KRW-EOS', 'KRW-TRX', 'KRW-SC', 'KRW-ONT', 'KRW-ZIL', 'KRW-POLY', 'KRW-ZRX', 'KRW-LOOM', 'KRW-BCH', 'KRW-BAT', 'KRW-IOST', 'KRW-RFR', 'KRW-CVC', 'KRW-IQ', 'KRW-IOTA', 'KRW-MFT', 'KRW-ONG', 'KRW-GAS', 'KRW-UPP', 'KRW-ELF', 'KRW-KNC', 'KRW-BSV', 'KRW-THETA', 'KRW-QKC', 'KRW-BTT', 'KRW-MOC', 'KRW-ENJ', 'KRW-TFUEL', 'KRW-MANA', 'KRW-ANKR', 'KRW-AERGO', 'KRW-ATOM', 'KRW-TT', 'KRW-CRE', 'KRW-MBL', 'KRW-WAXP', 'KRW-HBAR', 'KRW-MED', 'KRW-MLK', 'KRW-STPT', 'KRW-ORBS', 'KRW-VET', 'KRW-CHZ', 'KRW-STMX', 'KRW-DKA', 'KRW-HIVE', 'KRW-KAVA', 'KRW-AHT', 'KRW-LINK', 'KRW-XTZ', 'KRW-BORA', 'KRW-JST', 'KRW-CRO', 'KRW-TON', 'KRW-SXP', 'KRW-HUNT', 'KRW-PLA', 'KRW-DOT', 'KRW-SRM', 'KRW-MVL', 'KRW-STRAX', 'KRW-AQT', 'KRW-GLM', 'KRW-SSX', 'KRW-META', 'KRW-FCT2', 'KRW-CBK', 'KRW-SAND', 'KRW-HUM', 'KRW-DOGE', 'KRW-STRK', 'KRW-PUNDIX', 'KRW-FLOW', 'KRW-DAWN', 'KRW-AXS', 'KRW-STX', 'KRW-XEC', 'KRW-SOL', 'KRW-MATIC', 'KRW-NU', 'KRW-AAVE', 'KRW-1INCH', 'KRW-ALGO', 'KRW-NEAR']
-
+buySound = pygame.mixer.Sound("resource/buy.mp3")
+sellSound = pygame.mixer.Sound("resource/sell.mp3")
 form_class = uic.loadUiType("resource/gazacoin.ui")[0]
 # chart.py의 ChartWidget 클래스
 # graph.py의 QChartView 클래스
@@ -35,9 +36,15 @@ class ListbuyWorker(QThread):    ## 쓰레드 사용을 위한 클래스 선언
             sellcurr = []
             for selectcoin.coin in selectcoin.coin_dict:
                 if selectcoin.coin['wait'] == True and selectcoin.coin['buychecker'] == True:
-                    buycurr.append(pyupbit.get_current_price(selectcoin.coin['ticker']))
+                    try:
+                        buycurr.append(pyupbit.get_current_price(selectcoin.coin['ticker']))
+                    except:
+                        continue
                 if selectcoin.coin['wait'] == True and selectcoin.coin['sellchecker'] == True:
-                    sellcurr.append(pyupbit.get_current_price(selectcoin.coin['ticker']))
+                    try:
+                        sellcurr.append(pyupbit.get_current_price(selectcoin.coin['ticker']))
+                    except:
+                        continue
             self.data_seed.emit(buycurr, sellcurr)
 
              # 업비트 호가창을 매수/매도 각각 15개씩만 얻어옴 (딕셔너리형태)
@@ -58,6 +65,7 @@ class MainWindow(QMainWindow, form_class, Userdata):
     def __init__(self):
         super().__init__()
         self.showMaximized()
+        
         
         self.lw = ListbuyWorker()
         self.lw.data_seed.connect(self.Listordernow)
@@ -122,6 +130,7 @@ class MainWindow(QMainWindow, form_class, Userdata):
                     curr = buycurr[coincount-1]
                     selectcoin.coin['buychecker'] = False
                     self.textEdit.append(f"\n{ticker} 를 평단가 {buyprice:,.2f} 원에 {total_price:,.2f} 원만큼 매수했습니다. 코인 현재가 {curr} 하향구매")
+                    buySound.play()
                     if len(buycurr) == (coincount):
                         break
                     coincount += 1  # 현재가와 같으므로 카운트 업
@@ -143,6 +152,7 @@ class MainWindow(QMainWindow, form_class, Userdata):
                     curr = buycurr[coincount-1]
                     selectcoin.coin['buychecker'] = False
                     self.textEdit.append(f"\n{ticker} 를 평단가 {buyprice:,.2f} 원에 {total_price:,.2f} 원만큼 매수했습니다. 코인 현재가 {curr}")
+                    buySound.play()
                     if len(buycurr) == (coincount):
                         break
                     coincount += 1  # 현재가와 같으므로 카운트 업
@@ -184,7 +194,7 @@ class MainWindow(QMainWindow, form_class, Userdata):
                     curr = sellcurr[sellcounter-1]
                     selectcoin.coin['sellchecker'] = False
                     self.textEdit.append(f"\n{ticker} 를 매도가 {sellprice:,.2f} 원에 {total_price:,.2f} 원만큼 매도했습니다. 코인 현재가 {curr} 하향매도")
-                    
+                    sellSound.play()
                     if len(sellcurr) == (sellcounter):
                         break
                     sellcounter += 1  # 현재가와 같으므로 카운트 업
@@ -215,7 +225,7 @@ class MainWindow(QMainWindow, form_class, Userdata):
                     selectcoin.coin['sellchecker'] = False
                     curr = sellcurr[sellcounter-1]
                     self.textEdit.append(f"\n{ticker} 를 매도가 {sellprice:,.2f} 원에 {total_price:,.2f} 원만큼 매도했습니다. 코인 현재가 {curr}")
-                    
+                    sellSound.play()
                     if len(sellcurr) == (sellcounter):
                         break
                     sellcounter += 1  # 현재가와 같으므로 카운트 업
@@ -232,7 +242,6 @@ class MainWindow(QMainWindow, form_class, Userdata):
                     self.textEdit.append("\n해당 코인의 미체결 주문이 있습니다.")
                     break
                 else:
-                    print('wow')
                     limitorder = LimitOrder()
                     limitorder.exec_()      # 다른 모듈의 다이얼로그를 실행시킨다.
                     if selectcoin.accepted == True:
@@ -272,6 +281,7 @@ class MainWindow(QMainWindow, form_class, Userdata):
                                 multifly = buyprice*buyamount
                                 break
                         self.textEdit.append(f"\n{ticker} 를 {buyprice:,.2f} 원에 {buyamount:,.8f} 개 매수했습니다. 매수액 {multifly:,.2f} (수수료 0.05%차감)")
+                        buySound.play()
                         selectcoin.coin['buyprice'] = 0
                         selectcoin.coin['buyamount'] = 0
                         selectcoin.accepted = False
@@ -294,6 +304,7 @@ class MainWindow(QMainWindow, form_class, Userdata):
                                 multifly = buyprice*buyamount
                                 break
                         self.textEdit.append(f"\n{ticker} 를 {buyprice:,.2f} 원에 {buyamount:,.8f} 개 매도했습니다. 매도액 {multifly:,.2f} (수수료 0.05%차감)")
+                        sellSound.play()
                         selectcoin.coin['buyamount'] = 0
                         selectcoin.coin['buyprice'] = 0
                         selectcoin.accepted = False
