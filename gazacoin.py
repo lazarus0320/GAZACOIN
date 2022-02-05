@@ -14,7 +14,7 @@ from overview import *
 import pygame
 pygame.init()
 
-
+buyCoinList = []
 tickers = ['KRW-BTC', 'KRW-ETH', 'KRW-NEO', 'KRW-MTL', 'KRW-LTC', 'KRW-XRP', 'KRW-ETC', 'KRW-OMG', 'KRW-SNT', 'KRW-WAVES', 'KRW-XEM', 'KRW-QTUM', 'KRW-LSK', 'KRW-STEEM', 'KRW-XLM', 'KRW-ARDR', 'KRW-ARK', 'KRW-STORJ', 'KRW-GRS', 'KRW-REP', 'KRW-ADA', 'KRW-SBD', 'KRW-POWR', 'KRW-BTG', 'KRW-ICX', 'KRW-EOS', 'KRW-TRX', 'KRW-SC', 'KRW-ONT', 'KRW-ZIL', 'KRW-POLY', 'KRW-ZRX', 'KRW-LOOM', 'KRW-BCH', 'KRW-BAT', 'KRW-IOST', 'KRW-RFR', 'KRW-CVC', 'KRW-IQ', 'KRW-IOTA', 'KRW-MFT', 'KRW-ONG', 'KRW-GAS', 'KRW-UPP', 'KRW-ELF', 'KRW-KNC', 'KRW-BSV', 'KRW-THETA', 'KRW-QKC', 'KRW-BTT', 'KRW-MOC', 'KRW-ENJ', 'KRW-TFUEL', 'KRW-MANA', 'KRW-ANKR', 'KRW-AERGO', 'KRW-ATOM', 'KRW-TT', 'KRW-CRE', 'KRW-MBL', 'KRW-WAXP', 'KRW-HBAR', 'KRW-MED', 'KRW-MLK', 'KRW-STPT', 'KRW-ORBS', 'KRW-VET', 'KRW-CHZ', 'KRW-STMX', 'KRW-DKA', 'KRW-HIVE', 'KRW-KAVA', 'KRW-AHT', 'KRW-LINK', 'KRW-XTZ', 'KRW-BORA', 'KRW-JST', 'KRW-CRO', 'KRW-TON', 'KRW-SXP', 'KRW-HUNT', 'KRW-PLA', 'KRW-DOT', 'KRW-SRM', 'KRW-MVL', 'KRW-STRAX', 'KRW-AQT', 'KRW-GLM', 'KRW-SSX', 'KRW-META', 'KRW-FCT2', 'KRW-CBK', 'KRW-SAND', 'KRW-HUM', 'KRW-DOGE', 'KRW-STRK', 'KRW-PUNDIX', 'KRW-FLOW', 'KRW-DAWN', 'KRW-AXS', 'KRW-STX', 'KRW-XEC', 'KRW-SOL', 'KRW-MATIC', 'KRW-NU', 'KRW-AAVE', 'KRW-1INCH', 'KRW-ALGO', 'KRW-NEAR']
 buySound = pygame.mixer.Sound("resource/buy.mp3")
 sellSound = pygame.mixer.Sound("resource/sell.mp3")
@@ -295,14 +295,17 @@ class MainWindow(QMainWindow, form_class, Userdata):
                         
                         if selectcoin.coin['id'] == -1:
                             # 표에 있는 값들을 확인하고 맨 마지막에 해당 id를 부여
-                            id = self.buyTable.rowCount()
+                            #id = self.buyTable.rowCount()
                             row = self.buyTable.rowCount()
                             self.buyTable.insertRow(row)
-                            selectcoin.coin['id'] = id
+                            buyCoinList.append(selectcoin.coin['ticker'])
+                            selectcoin.coin['id'] = buyCoinList.index(selectcoin.coin['ticker'])
+                            id = selectcoin.coin['id']
                             self.buyTable.setItem(id, 0, QTableWidgetItem(ticker))
                             self.buyTable.setItem(id, 1, QTableWidgetItem(f'{averagePrice:,}'))
                             self.buyTable.setItem(id, 2, QTableWidgetItem(str(totalbuyAmount)))
                             self.buyTable.setItem(id, 3, QTableWidgetItem(f'{totalbuyPrice:,}'))
+                            self.myCoin_Update()
                         
                         else:
                             id = selectcoin.coin['id']
@@ -310,6 +313,7 @@ class MainWindow(QMainWindow, form_class, Userdata):
                             self.buyTable.setItem(id, 1, QTableWidgetItem(f'{averagePrice:,}'))
                             self.buyTable.setItem(id, 2, QTableWidgetItem(str(totalbuyAmount)))
                             self.buyTable.setItem(id, 3, QTableWidgetItem(f'{totalbuyPrice:,}'))
+                            self.myCoin_Update()
                         
                         selectcoin.coin['buyprice'] = 0
                         selectcoin.coin['buyamount'] = 0
@@ -341,9 +345,12 @@ class MainWindow(QMainWindow, form_class, Userdata):
                         if totalbuyPrice < 1:
                             selectcoin.coin['id'] = -1
                             self.buyTable.removeRow(id)
+                            buyCoinList.remove(selectcoin.coin['ticker'])
+                            self.myCoin_Update()
                             #5개의 코인을 샀다고 가정했을때 3번째 코인의 행을 지워버리면 4번째, 5번째 행의 코인들은 3번째, 4번째 행으로 옮겨져야하고 id값도 그에 맞게 바뀌어야 한다.
                             #수익률 때문에 나중에 따로 모듈 만들어서 실시간으로 표에 정보를 표시하게 하고, 여기서는 행과 id값만 지정해주는 방법으로 업데이트 예정.
-                        
+                            #그냥 코인 구매한 목록들을 리스트로 담아서 관리
+                            #코인 행 하나 리무브 시키면 구매한 코인들에 대한 바뀐 id값들을 갱신해야함. for문을 돌려서 buyCoinList와 selectcoin.coin['ticker']와 같은 티커의 아이디 값을 거래를 할때마다 최신화 시킨다.
                         else:
                             totalbuyPrice = selectcoin.coin['rtotalbuy']
                             averagePrice = round(selectcoin.coin['rtotalbuy'] / selectcoin.coin['rtotalamount'], 2)    # ZeroDivisionError: division by zero
@@ -352,6 +359,7 @@ class MainWindow(QMainWindow, form_class, Userdata):
                             self.buyTable.setItem(id, 1, QTableWidgetItem(f'{averagePrice:,}'))
                             self.buyTable.setItem(id, 2, QTableWidgetItem(str(totalbuyAmount)))
                             self.buyTable.setItem(id, 3, QTableWidgetItem(f'{totalbuyPrice:,}'))
+                            self.myCoin_Update()
                         
                         selectcoin.coin['buyamount'] = 0
                         selectcoin.coin['buyprice'] = 0
@@ -436,6 +444,11 @@ class MainWindow(QMainWindow, form_class, Userdata):
         self.textEdit.append("코인 정보 조회 방법 : KRW-코인 티커명  ex) 비트코인 조회 : KRW-BTC. 리플코인 조회 : KRW-XRP"  )
         self.textEdit.append("미체결 주문 취소 방법 : cancel-KRW-코인 티커명  ex) 샌드박스 코인 미체결 매도주문 취소하기 : cancel-KRW-SAND")
 
+    def myCoin_Update(self):
+        for i in range(len(buyCoinList)):
+            for selectcoin.coin in selectcoin.coin_dict:
+                if selectcoin.coin['ticker'] == buyCoinList[i]:
+                    selectcoin.coin['id'] = i
                 
     def closeEvent(self, event):
         quit_msg = "그만할래요?"
