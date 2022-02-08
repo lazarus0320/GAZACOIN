@@ -12,6 +12,7 @@ from MarketSell import *
 from LimitSell import LimitSell
 from overview import *
 import pygame
+import os
 pygame.init()
 
 buyCoinList = []
@@ -131,9 +132,43 @@ class MainWindow(QMainWindow, form_class, Userdata):
                     selectcoin.coin['buychecker'] = False
                     self.textEdit.append(f"\n{ticker} 를 평단가 {buyprice:,.2f} 원에 {total_price:,.2f} 원만큼 매수했습니다. 코인 현재가 {curr} 하향구매")
                     buySound.play()
+                    
+                    
+                    
+                    averagePrice = round(selectcoin.coin['rtotalbuy'] / selectcoin.coin['rtotalamount'], 2)
+                    totalbuyAmount = selectcoin.coin['rtotalamount']
+                    totalbuyPrice = selectcoin.coin['rtotalbuy']
+                    # 이 코인을 구매한 적이 없다면 id값을 부여하고, 행을 새로 추가.
+                    # 구매한 적이 있다면 해당 코인에 부여했던 id값이 위치한 행에다 값을 업데이트.
+                    # 전량 매도가 된 경우 id값 -1로 초기화, 표에서 제거.
+                    
+                    if selectcoin.coin['id'] == -1:
+                        # 표에 있는 값들을 확인하고 맨 마지막에 해당 id를 부여
+                        #id = self.buyTable.rowCount()
+                        row = self.buyTable.rowCount()
+                        self.buyTable.insertRow(row)
+                        buyCoinList.append(selectcoin.coin['ticker'])
+                        selectcoin.coin['id'] = buyCoinList.index(selectcoin.coin['ticker'])
+                        id = selectcoin.coin['id']
+                        self.buyTable.setItem(id, 0, QTableWidgetItem(ticker))
+                        self.buyTable.setItem(id, 1, QTableWidgetItem(f'{averagePrice:,}'))
+                        self.buyTable.setItem(id, 2, QTableWidgetItem(str(totalbuyAmount)))
+                        self.buyTable.setItem(id, 3, QTableWidgetItem(f'{totalbuyPrice:,}'))
+                        self.myCoin_Update()
+                    
+                    else:
+                        id = selectcoin.coin['id']
+                        self.buyTable.setItem(id, 0, QTableWidgetItem(ticker))
+                        self.buyTable.setItem(id, 1, QTableWidgetItem(f'{averagePrice:,}'))
+                        self.buyTable.setItem(id, 2, QTableWidgetItem(str(totalbuyAmount)))
+                        self.buyTable.setItem(id, 3, QTableWidgetItem(f'{totalbuyPrice:,}'))
+                        self.myCoin_Update()
+                    
                     if len(buycurr) == (coincount):
                         break
                     coincount += 1  # 현재가와 같으므로 카운트 업
+                    
+                    
                 elif selectcoin.coin['buyprice'] <= buycurr[coincount-1] and selectcoin.coin['lowerbuy'] == False:
                     ticker = selectcoin.coin['ticker']
                     buyprice = selectcoin.coin['buyprice']
@@ -153,9 +188,43 @@ class MainWindow(QMainWindow, form_class, Userdata):
                     selectcoin.coin['buychecker'] = False
                     self.textEdit.append(f"\n{ticker} 를 평단가 {buyprice:,.2f} 원에 {total_price:,.2f} 원만큼 매수했습니다. 코인 현재가 {curr}")
                     buySound.play()
+                    
+                    
+                    averagePrice = round(selectcoin.coin['rtotalbuy'] / selectcoin.coin['rtotalamount'], 2)
+                    totalbuyAmount = selectcoin.coin['rtotalamount']
+                    totalbuyPrice = selectcoin.coin['rtotalbuy']
+                    # 이 코인을 구매한 적이 없다면 id값을 부여하고, 행을 새로 추가.
+                    # 구매한 적이 있다면 해당 코인에 부여했던 id값이 위치한 행에다 값을 업데이트.
+                    # 전량 매도가 된 경우 id값 -1로 초기화, 표에서 제거.
+                    
+                    if selectcoin.coin['id'] == -1:
+                        # 표에 있는 값들을 확인하고 맨 마지막에 해당 id를 부여
+                        #id = self.buyTable.rowCount()
+                        row = self.buyTable.rowCount()
+                        self.buyTable.insertRow(row)
+                        buyCoinList.append(selectcoin.coin['ticker'])
+                        selectcoin.coin['id'] = buyCoinList.index(selectcoin.coin['ticker'])
+                        id = selectcoin.coin['id']
+                        self.buyTable.setItem(id, 0, QTableWidgetItem(ticker))
+                        self.buyTable.setItem(id, 1, QTableWidgetItem(f'{averagePrice:,}'))
+                        self.buyTable.setItem(id, 2, QTableWidgetItem(str(totalbuyAmount)))
+                        self.buyTable.setItem(id, 3, QTableWidgetItem(f'{totalbuyPrice:,}'))
+                        self.myCoin_Update()
+                    
+                    else:
+                        id = selectcoin.coin['id']
+                        self.buyTable.setItem(id, 0, QTableWidgetItem(ticker))
+                        self.buyTable.setItem(id, 1, QTableWidgetItem(f'{averagePrice:,}'))
+                        self.buyTable.setItem(id, 2, QTableWidgetItem(str(totalbuyAmount)))
+                        self.buyTable.setItem(id, 3, QTableWidgetItem(f'{totalbuyPrice:,}'))
+                        self.myCoin_Update()
+                    
+                    
                     if len(buycurr) == (coincount):
                         break
                     coincount += 1  # 현재가와 같으므로 카운트 업
+                    
+                    
                 else : 
                     coincount += 1    # 현재가와 다르지만 검사 했으므로 카운트 업
                     if len(buycurr) == (coincount):
@@ -195,6 +264,30 @@ class MainWindow(QMainWindow, form_class, Userdata):
                     selectcoin.coin['sellchecker'] = False
                     self.textEdit.append(f"\n{ticker} 를 매도가 {sellprice:,.2f} 원에 {total_price:,.2f} 원만큼 매도했습니다. 코인 현재가 {curr} 하향매도")
                     sellSound.play()
+                    
+                    
+                    totalbuyPrice = selectcoin.coin['rtotalbuy']
+                        
+                    id = selectcoin.coin['id']
+                    if totalbuyPrice < 1:
+                        selectcoin.coin['id'] = -1
+                        self.buyTable.removeRow(id)
+                        buyCoinList.remove(selectcoin.coin['ticker'])
+                        self.myCoin_Update()
+                        #5개의 코인을 샀다고 가정했을때 3번째 코인의 행을 지워버리면 4번째, 5번째 행의 코인들은 3번째, 4번째 행으로 옮겨져야하고 id값도 그에 맞게 바뀌어야 한다.
+                        #수익률 때문에 나중에 따로 모듈 만들어서 실시간으로 표에 정보를 표시하게 하고, 여기서는 행과 id값만 지정해주는 방법으로 업데이트 예정.
+                        #그냥 코인 구매한 목록들을 리스트로 담아서 관리
+                        #코인 행 하나 리무브 시키면 구매한 코인들에 대한 바뀐 id값들을 갱신해야함. for문을 돌려서 buyCoinList와 selectcoin.coin['ticker']와 같은 티커의 아이디 값을 거래를 할때마다 최신화 시킨다.
+                    else:
+                        totalbuyPrice = selectcoin.coin['rtotalbuy']
+                        averagePrice = round(selectcoin.coin['rtotalbuy'] / selectcoin.coin['rtotalamount'], 2)    # ZeroDivisionError: division by zero
+                        totalbuyAmount = selectcoin.coin['rtotalamount']
+                        self.buyTable.setItem(id, 0, QTableWidgetItem(ticker))
+                        self.buyTable.setItem(id, 1, QTableWidgetItem(f'{averagePrice:,}'))
+                        self.buyTable.setItem(id, 2, QTableWidgetItem(str(totalbuyAmount)))
+                        self.buyTable.setItem(id, 3, QTableWidgetItem(f'{totalbuyPrice:,}'))
+                        self.myCoin_Update()
+                    
                     if len(sellcurr) == (sellcounter):
                         break
                     sellcounter += 1  # 현재가와 같으므로 카운트 업
@@ -226,6 +319,30 @@ class MainWindow(QMainWindow, form_class, Userdata):
                     curr = sellcurr[sellcounter-1]
                     self.textEdit.append(f"\n{ticker} 를 매도가 {sellprice:,.2f} 원에 {total_price:,.2f} 원만큼 매도했습니다. 코인 현재가 {curr}")
                     sellSound.play()
+                    
+                    totalbuyPrice = selectcoin.coin['rtotalbuy']
+                        
+                    id = selectcoin.coin['id']
+                    if totalbuyPrice < 1:
+                        selectcoin.coin['id'] = -1
+                        self.buyTable.removeRow(id)
+                        buyCoinList.remove(selectcoin.coin['ticker'])
+                        self.myCoin_Update()
+                        #5개의 코인을 샀다고 가정했을때 3번째 코인의 행을 지워버리면 4번째, 5번째 행의 코인들은 3번째, 4번째 행으로 옮겨져야하고 id값도 그에 맞게 바뀌어야 한다.
+                        #수익률 때문에 나중에 따로 모듈 만들어서 실시간으로 표에 정보를 표시하게 하고, 여기서는 행과 id값만 지정해주는 방법으로 업데이트 예정.
+                        #그냥 코인 구매한 목록들을 리스트로 담아서 관리
+                        #코인 행 하나 리무브 시키면 구매한 코인들에 대한 바뀐 id값들을 갱신해야함. for문을 돌려서 buyCoinList와 selectcoin.coin['ticker']와 같은 티커의 아이디 값을 거래를 할때마다 최신화 시킨다.
+                    else:
+                        totalbuyPrice = selectcoin.coin['rtotalbuy']
+                        averagePrice = round(selectcoin.coin['rtotalbuy'] / selectcoin.coin['rtotalamount'], 2)    # ZeroDivisionError: division by zero
+                        totalbuyAmount = selectcoin.coin['rtotalamount']
+                        self.buyTable.setItem(id, 0, QTableWidgetItem(ticker))
+                        self.buyTable.setItem(id, 1, QTableWidgetItem(f'{averagePrice:,}'))
+                        self.buyTable.setItem(id, 2, QTableWidgetItem(str(totalbuyAmount)))
+                        self.buyTable.setItem(id, 3, QTableWidgetItem(f'{totalbuyPrice:,}'))
+                        self.myCoin_Update()
+                    
+                    
                     if len(sellcurr) == (sellcounter):
                         break
                     sellcounter += 1  # 현재가와 같으므로 카운트 업
@@ -463,6 +580,7 @@ class MainWindow(QMainWindow, form_class, Userdata):
             
         else:
             event.ignore()
+            os.system("pause")
 
 
  
@@ -472,3 +590,4 @@ if __name__ == "__main__":
     mw = MainWindow()
     mw.show()
     sys.exit(app.exec_())
+    
